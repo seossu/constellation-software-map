@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>당신이 모르는 사이, CSU는 세계에 있다</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  :root { --red:#c0392b; --navy:#1f3a5f; --ink:#1a1a1a; --grey:#666; --bg:#fbfbfa; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+         color:var(--ink); background:var(--bg); line-height:1.6; -webkit-text-size-adjust:100%; }
+  .wrap { max-width:820px; margin:0 auto; padding:0 18px; }
+  header { text-align:center; padding:44px 18px 26px; }
+  header .kicker { color:var(--red); font-weight:700; letter-spacing:.5px; font-size:.9rem; }
+  header h1 { font-size:1.7rem; margin:10px 0 6px; line-height:1.35; }
+  header p { color:var(--grey); font-size:.98rem; }
+  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:26px auto; max-width:820px; }
+  .stat { background:#fff; border:1px solid #eee; border-radius:14px; padding:16px 8px; text-align:center; }
+  .stat .num { font-size:1.55rem; font-weight:800; color:var(--navy); }
+  .stat .lab { font-size:.76rem; color:var(--grey); margin-top:3px; }
+  #map { height:400px; border-radius:16px; border:1px solid #e5e5e5; margin:6px 0 8px; z-index:0; }
+  .mapcap { font-size:.82rem; color:var(--grey); text-align:center; margin-bottom:34px; }
+  h2.section { font-size:1.25rem; margin:8px 0 4px; }
+  .sub { color:var(--grey); font-size:.92rem; margin-bottom:16px; }
+  .vgrid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  @media (max-width:560px){ .vgrid{ grid-template-columns:1fr; } .stats{ grid-template-columns:repeat(2,1fr);} header h1{font-size:1.4rem;} }
+  .vcard { background:#fff; border:1px solid #eee; border-radius:14px; overflow:hidden; }
+  .vhead { padding:14px 16px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .vhead .t { font-weight:700; }
+  .vhead .t small { display:block; color:var(--grey); font-weight:400; font-size:.78rem; }
+  .vhead .arrow { color:var(--red); transition:transform .2s; font-size:1.1rem; }
+  .vcard.open .arrow { transform:rotate(90deg); }
+  .vbody { display:none; padding:0 16px 14px; border-top:1px solid #f2f2f2; }
+  .vcard.open .vbody { display:block; }
+  .co { padding:11px 0; border-bottom:1px dashed #eee; }
+  .co:last-child { border-bottom:none; }
+  .co .cn { font-weight:700; color:var(--navy); }
+  .co .cd { font-size:.9rem; color:#333; }
+  .co .cm { font-size:.82rem; color:var(--red); margin-top:2px; }
+  .co .cn a { color:var(--navy); text-decoration:none; border-bottom:1px solid #cdd6e0; }
+  .co .cn a:hover { border-color:var(--navy); }
+  .punch { text-align:center; background:var(--navy); color:#fff; border-radius:18px; padding:30px 22px; margin:34px 0; }
+  .punch h3 { font-size:1.3rem; margin-bottom:8px; }
+  .punch p { opacity:.9; font-size:.95rem; }
+  footer { color:var(--grey); font-size:.78rem; padding:24px 0 60px; border-top:1px solid #eee; margin-top:20px; }
+  footer a { color:var(--grey); }
+</style>
+</head>
+<body>
+<header>
+  <div class="kicker">경영전략 팀프로젝트 · 1조 · Constellation Software</div>
+  <h1>당신이 모르는 사이,<br>CSU는 이미 세계 곳곳에 있다</h1>
+  <p>이름도 못 들어본 소프트웨어 회사 1,100여 개. 그런데 전부 한 회사 소유입니다.</p>
+</header>
+
+<div class="wrap">
+  <div class="stats">
+    <div class="stat"><div class="num">1,100+</div><div class="lab">소프트웨어 회사</div></div>
+    <div class="stat"><div class="num">150+</div><div class="lab">산업 분야</div></div>
+    <div class="stat"><div class="num">100+</div><div class="lab">진출 국가</div></div>
+    <div class="stat"><div class="num">45,000</div><div class="lab">직원 수</div></div>
+  </div>
+
+  <div id="map"></div>
+  <div class="mapcap">빨간 점 하나하나가 CSU와 그 계열사가 활동하는 지역입니다. (대표 위치 표시)</div>
+
+  <h2 class="section">분야별로 들어가 보기</h2>
+  <div class="sub">150개가 넘는 분야 중 일부입니다. 카드를 누르면 대표 회사가 펼쳐지고,
+      회사 이름을 누르면 실제 사이트로 이동합니다.</div>
+  <div class="vgrid" id="vgrid"></div>
+
+  <div class="punch">
+    
+    <p>아마 이름을 들어본 회사가 거의 없을 겁니다. 그런데 여러분은 오늘도 버스를 타고, 수도요금을 내고,
+       병원에 가면서 이미 CSU의 소프트웨어를 썼습니다. 보이지 않게, 곳곳에서.</p>
+  </div>
+
+  <footer>
+    규모 수치 출처: Constellation Software (Wikipedia, csisoftware.com, 2025~2026).
+    회사 목록은 각 운영그룹(Volaris, Harris, Jonas 등) 공개 포트폴리오 기준 대표 예시이며
+    전체 1,100여 개 중 일부입니다. 지도의 점은 알려진 활동 지역을 대표로 표시한 것입니다.<br>
+    csisoftware.com · en.wikipedia.org/wiki/Constellation_Software
+  </footer>
+</div>
+
+<script>
+// ---- 세계 지도: CSU/계열사 활동 지역 (대표 위치) ----
+const locations = [
+  ["토론토 (본사)",43.65,-79.38],["오타와",45.42,-75.7],["시카고",41.88,-87.63],
+  ["댈러스",32.78,-96.8],["애틀랜타",33.75,-84.39],["뉴욕",40.71,-74.0],["샌프란시스코",37.77,-122.42],
+  ["런던",51.51,-0.13],["암스테르담",52.37,4.9],["더블린",53.35,-6.26],["파리",48.86,2.35],
+  ["프랑크푸르트",50.11,8.68],["마드리드",40.42,-3.7],["밀라노",45.46,9.19],
+  ["스톡홀름",59.33,18.06],["오슬로",59.91,10.75],["헬싱키",60.17,24.94],["코펜하겐",55.68,12.57],
+  ["시드니",-33.87,151.21],["오클랜드",-36.85,174.76],["멜버른",-37.81,144.96],
+  ["방갈로르",12.97,77.59],["싱가포르",1.35,103.82],["도쿄",35.68,139.69],
+  ["상파울루",-23.55,-46.63],["멕시코시티",19.43,-99.13],["요하네스버그",-26.2,28.05],
+  ["두바이",25.2,55.27],["바르샤바",52.23,21.01],["취리히",47.38,8.54],["브뤼셀",50.85,4.35],
+  ["빈",48.21,16.37],["리스본",38.72,-9.14],["몬트리올",45.5,-73.57]
+];
+const map = L.map('map',{minZoom:1,maxZoom:6,worldCopyJump:true,scrollWheelZoom:false}).setView([30,10],1.6);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+  {attribution:'© OpenStreetMap © CARTO',subdomains:'abcd'}).addTo(map);
+locations.forEach(([name,lat,lng])=>{
+  L.circleMarker([lat,lng],{radius:6,color:'#a5281f',weight:1,fillColor:'#e74c3c',fillOpacity:.85})
+   .addTo(map).bindTooltip(name,{direction:'top'});
+});
+
+// ---- 분야별 대표 회사 (실제 CSU 계열사, 공식 사이트 링크 검증됨) ----
+const verticals = [
+  {t:"대중교통", s:"버스·철도·콜택시", g:"Modaxo", co:[
+    {n:"Trapeze Group", u:"https://trapezegroup.com/", d:"시내버스와 장애인 콜택시의 노선·시간표·배차 관리", m:"오늘 시내버스를 탔다면"},
+    {n:"TripSpark Technologies", u:"https://www.tripspark.com/", d:"중소도시 대중교통의 운행과 승객 정보 시스템", m:"동네 마을버스를 탔다면"},
+    {n:"SISCOG", u:"https://www.siscog.com/en-us/", d:"철도·지하철의 승무원과 차량 운용 계획 최적화", m:"기차나 지하철을 탔다면"}]},
+  {t:"골프장·클럽", s:"회원제 시설", g:"Jonas", co:[
+    {n:"Jonas Club Software", u:"https://www.jonasclub.com/", d:"골프장·컨트리클럽의 회원, 티타임, 식음료 관리", m:"골프장에서 티타임을 예약해봤다면"}]},
+  {t:"피트니스·레저", s:"헬스장·레저센터", g:"Jonas", co:[
+    {n:"Jonas Fitness", u:"https://jonasfitness.com/", d:"헬스장의 회원권과 결제, 출입 관리", m:"헬스장을 끊어봤다면"},
+    {n:"Gladstone Health & Leisure", u:"https://gladstonemrm.com.au/", d:"레저센터·수영장의 회원과 예약 관리", m:"공공 레저센터를 이용해봤다면"}]},
+  {t:"건설", s:"건설사 운영", g:"Jonas", co:[
+    {n:"Jonas Construction Software", u:"https://www.jonasconstruction.com/", d:"건설회사의 회계와 프로젝트 원가 관리", m:"공사 현장 뒤편 시스템에서"}]},
+  {t:"수도·전기 요금", s:"지자체 유틸리티", g:"Harris", co:[
+    {n:"Cogsdale", u:"https://cogsdale.com/", d:"지자체가 주민에게 수도·전기 요금 고지서를 보내는 시스템", m:"수도요금 고지서를 받아봤다면"},
+    {n:"Advanced Utility Systems", u:"https://advancedutility.com/", d:"유틸리티 요금 청구와 고객정보 관리", m:"전기·수도 요금을 낼 때"}]},
+  {t:"병원·의료", s:"의료 IT", g:"Harris", co:[
+    {n:"Altera Digital Health", u:"https://www.alterahealth.com/", d:"병원의 전자의무기록(EHR)과 진료 정보 관리", m:"병원에서 진료를 받아봤다면"}]},
+  {t:"교육", s:"대학·학생 서비스", g:"Volaris", co:[
+    {n:"Symplicity", u:"https://www.symplicity.com/", d:"2,000개 넘는 대학의 취업 지원·학생 서비스 플랫폼", m:"대학 취업센터를 이용해봤다면"}]},
+  {t:"금융·보험", s:"은행·보험 소프트웨어", g:"Vencora", co:[
+    {n:"Vencora", u:"https://www.vencora.com/", d:"은행·보험·금융회사의 핵심 소프트웨어를 인수·운영하는 글로벌 그룹", m:"은행·보험 업무를 볼 때"}]},
+  {t:"통신·미디어", s:"통신사 운영", g:"Lumine Group", co:[
+    {n:"Lumine Group", u:"https://www.luminegroup.com/", d:"전 세계 통신·미디어 사업자의 요금·운영 소프트웨어 그룹 (TSXV 상장)", m:"휴대폰 요금이 계산될 때"}]},
+  {t:"농식품", s:"농업·식품 공급망", g:"Cultura", co:[
+    {n:"Cultura Technologies", u:"https://culturatech.com/", d:"곡물·사료·식품 유통의 공급망을 관리하는 농식품 소프트웨어 그룹", m:"식탁에 오르기까지의 과정에서"}]}
+];
+const grid = document.getElementById('vgrid');
+verticals.forEach(v=>{
+  const card = document.createElement('div'); card.className='vcard';
+  const cos = v.co.map(c=>`<div class="co"><div class="cn"><a href="${c.u}" target="_blank" rel="noopener">${c.n} ↗</a></div>
+      <div class="cd">${c.d}</div><div class="cm">${c.m}</div></div>`).join('');
+  card.innerHTML = `<div class="vhead"><div class="t">${v.t}<small>${v.s} · ${v.g}</small></div>
+      <div class="arrow">›</div></div><div class="vbody">${cos}</div>`;
+  card.querySelector('.vhead').addEventListener('click',()=>card.classList.toggle('open'));
+  grid.appendChild(card);
+});
+</script>
+</body>
+</html>
