@@ -13,8 +13,8 @@
          color:var(--ink); background:var(--bg); line-height:1.6; -webkit-text-size-adjust:100%; }
   .wrap { max-width:820px; margin:0 auto; padding:0 18px; }
   header { text-align:center; padding:44px 18px 26px; }
-  header .kicker { color:var(--red); font-weight:700; letter-spacing:.5px; font-size:.9rem; }
-  header h1 { font-size:1.7rem; margin:10px 0 6px; line-height:1.35; }
+  header .kicker { color:var(--red); font-weight:800; letter-spacing:.5px; font-size:1.2rem; }
+  header h1 { font-size:1.7rem; margin:14px 0 6px; line-height:1.35; }
   header p { color:var(--grey); font-size:.98rem; }
   .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:26px auto; max-width:820px; }
   .stat { background:#fff; border:1px solid #eee; border-radius:14px; padding:16px 8px; text-align:center; }
@@ -46,11 +46,14 @@
   .punch p { opacity:.9; font-size:.95rem; }
   footer { color:var(--grey); font-size:.78rem; padding:24px 0 60px; border-top:1px solid #eee; margin-top:20px; }
   footer a { color:var(--grey); }
+  .closebtn { display:block; margin:0 auto 46px; padding:13px 34px; border:none; border-radius:30px;
+    background:var(--navy); color:#fff; font-size:1rem; font-weight:700; cursor:pointer; }
+  .closebtn:active { opacity:.85; }
 </style>
 </head>
 <body>
 <header>
-  <div class="kicker">경영전략 팀프로젝트 · 1조 · Constellation Software</div>
+  <div class="kicker">경영전략 팀프로젝트 · 1조</div>
   <h1>당신이 모르는 사이,<br>CSU는 이미 세계 곳곳에 있다</h1>
   <p>이름도 못 들어본 소프트웨어 회사 1,100여 개. 그런데 전부 한 회사 소유입니다.</p>
 </header>
@@ -62,6 +65,26 @@
     <div class="stat"><div class="num">100+</div><div class="lab">진출 국가</div></div>
     <div class="stat"><div class="num">45,000</div><div class="lab">직원 수</div></div>
   </div>
+
+  <h2 class="section">지금 이 순간, CSU 주가</h2>
+  <div class="sub">시장은 AI를 위협으로 보고 주가를 눌렀습니다. 하지만 매출과 현금흐름은 계속 성장 중입니다.</div>
+  <div class="tradingview-widget-container">
+    <div class="tradingview-widget-container__widget"></div>
+    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+    {
+      "symbol": "TSX:CSU",
+      "width": "100%",
+      "height": 220,
+      "locale": "kr",
+      "dateRange": "12M",
+      "colorTheme": "light",
+      "isTransparent": true,
+      "autosize": false,
+      "largeChartUrl": ""
+    }
+    </script>
+  </div>
+  <div class="mapcap">TradingView 제공 · 거래소 사정상 약 15분 지연될 수 있음 · 종목 TSX:CSU</div>
 
   <div id="map"></div>
   <div class="mapcap">빨간 점 하나하나가 CSU와 그 계열사가 활동하는 지역입니다. (대표 위치 표시)</div>
@@ -83,6 +106,8 @@
     전체 1,100여 개 중 일부입니다. 지도의 점은 알려진 활동 지역을 대표로 표시한 것입니다.<br>
     csisoftware.com · en.wikipedia.org/wiki/Constellation_Software
   </footer>
+
+  <button class="closebtn" onclick="closePage()">✕ 닫기</button>
 </div>
 
 <script>
@@ -144,6 +169,21 @@ verticals.forEach(v=>{
   card.querySelector('.vhead').addEventListener('click',()=>card.classList.toggle('open'));
   grid.appendChild(card);
 });
+
+// ---- 닫기 버튼: 먼저 창 닫기 시도, 막히면 마무리 화면 ----
+function closePage(){
+  window.open('','_self');   // 일부 브라우저에서 close() 허용되게 하는 트릭
+  window.close();
+  setTimeout(function(){
+    document.body.innerHTML =
+      '<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;'
+      + 'justify-content:center;text-align:center;padding:30px;'
+      + 'font-family:-apple-system,\'Apple SD Gothic Neo\',\'Malgun Gothic\',sans-serif;background:#fbfbfa;">'
+      + '<div style="font-size:2.6rem;margin-bottom:14px;">🙏</div>'
+      + '<div style="font-size:1.35rem;font-weight:800;color:#1f3a5f;margin-bottom:8px;">봐주셔서 감사합니다</div>'
+      + '<div style="color:#666;">이 창은 닫아주세요.</div></div>';
+  }, 250);
+}
 </script>
 </body>
 </html>
