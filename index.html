@@ -131,8 +131,8 @@ const locations = [
   ["빈",48.21,16.37],["리스본",38.72,-9.14],["몬트리올",45.5,-73.57]
 ];
 const map = L.map('map',{minZoom:1,maxZoom:6,worldCopyJump:true,scrollWheelZoom:false}).setView([30,10],1.6);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-  {attribution:'© OpenStreetMap © CARTO',subdomains:'abcd'}).addTo(map);
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+  {attribution:'Tiles © Esri — Esri, HERE, Garmin, © OpenStreetMap contributors',maxZoom:16}).addTo(map);
 locations.forEach(([name,lat,lng])=>{
   L.circleMarker([lat,lng],{radius:6,color:'#a5281f',weight:1,fillColor:'#e74c3c',fillOpacity:.85})
    .addTo(map).bindTooltip(name,{direction:'top'});
